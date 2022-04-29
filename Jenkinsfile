@@ -2,8 +2,6 @@ pipeline {
      environment {
        IMAGE_NAME = "static_website_ib"
        IMAGE_TAG = "v1"
-       /* STAGING = "choco1992-staging"
-       PRODUCTION = "choco1992-production" */
        DOCKERHUB_PASSWORD = credentials(docker_pwd)
      }
      agent none
@@ -37,17 +35,6 @@ pipeline {
               }
            }
       }
-      stage('Clean Container') {
-          agent any
-          steps {
-             script {
-               sh '''
-                 docker stop $IMAGE_NAME
-                 docker rm $IMAGE_NAME
-               '''
-             }
-          }
-     }
      stage ('Login and Push Image on docker hub') {
           agent any
           steps {
@@ -58,7 +45,18 @@ pipeline {
                '''
              }
           }
-      }    
+      }
+      stage('Clean Container') {
+          agent any
+          steps {
+             script {
+               sh '''
+                 docker stop $IMAGE_NAME
+                 docker rm $IMAGE_NAME
+               '''
+             }
+          }
+     }    
      stage('Push image in staging and deploy it') {
        when {
               expression { GIT_BRANCH == 'origin/main' }
